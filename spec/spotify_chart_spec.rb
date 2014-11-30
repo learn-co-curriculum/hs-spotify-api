@@ -1,4 +1,4 @@
-describe SpotifyChart do
+describe "SpotifyChart" do
 
   describe '#initialize' do
     it "does not raise error when called on with no arguments" do
