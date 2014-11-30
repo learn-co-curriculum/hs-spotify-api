@@ -1,41 +1,115 @@
-require_relative 'spec_helper'
-require 'pry'
-
 describe SpotifyChart do
 
-  let(:american_chart) {SpotifyChart.new("us")}
-  let(:british_chart) {SpotifyChart.new("gb")}
+  describe '#initialize' do
+    it "does not raise error when called on with no arguments" do
+      expect { SpotifyChart.new }.to_not raise_error
+    end
+
+    it "sets a constant 'base_url' as the root url of the Spotify Chart API" do
+      expect(SpotifyChart::BASE_URL).to eq("http://charts.spotify.com/api/tracks/most_streamed")
+    end
+  end
+
+  let(:spotify_chart) { SpotifyChart.new }
+
+  describe "#get_url" do
+
+    it "- accepts one argument, the desired region" do
+      expect { spotify_chart.get_url("us") }.to_not raise_error
+    end
+
+    let(:gb_most_streamed) { spotify_chart.get_url("gb") }
+
+    it "- returns a string" do
+      expect(gb_most_streamed.class).to eq(String)
+    end
+
+    it "- returns a string with the base url
+      followed by a slash
+      then the region
+      followed by a slash
+      ending with 'weekly/latest'                        " do
+
+      regex = /http:\/\/charts.spotify.com\/api\/tracks\/most_streamed\//
+      regex_results = [regex.match(gb_most_streamed), /\/weekly\/latest/.match(gb_most_streamed), /gb/.match(gb_most_streamed)]
+      regex_results.each do |match|
+        expect(match).to_not be_nil
+      end
+    end
+
+    it "- returns the correct url for querying the API" do
+      expect(gb_most_streamed).to eq("http://charts.spotify.com/api/tracks/most_streamed/gb/weekly/latest")
+    end
+  
+  end
+
+  describe "#get_json" do
+    let(:url) { "http://api.openweathermap.org/data/2.5/weather?q=NewYork" }
+    
+    it "accepts one argument, a JSON url" do
+      expect { spotify_chart.get_json(url) }.to_not raise_error
+    end
+
+    it "returns a hash" do
+      expect(spotify_chart.get_json(url).class).to eq(Hash)
+    end
+
+    it "is the Ruby Hash version of JSON from a url" do
+      expect(spotify_chart.get_json(url)).to eq(JSON.load(open(url)))
+    end
+  end
+
+  describe "#get_first_track_info" do
+     
+    let(:us_most_streamed) { JSON.parse( IO.read("spec/support/us_most_streamed.json")) }
+    
+    it "accepts one argument, a hash object" do
+      expect { spotify_chart.get_first_track_info(us_most_streamed) }.to_not raise_error
+    end
+
+    it "returns a string" do
+      expect(spotify_chart.get_first_track_info(us_most_streamed).class).to eq(String)
+    end
+
+    it "returns <song> by <artist> from the album <album>" do
+      expect(spotify_chart.get_first_track_info(us_most_streamed)).to eq("All About That Bass by Meghan Trainor from the album Title")
+    end
+  end
 
   describe '#most_streamed' do
 
-    before(:all) do
-      encoded = "cmVxdWlyZSAnb3Blbi11cmknCnJlcXVpcmUgJ2pzb24nCgpjbGFzcyBTcGVj\nU3BvdGlmeUNoYXJ0CiAgYXR0cl9yZWFkZXIgOnN0cmVhbWVkLCA6c2hhcmVk\nCgogIGRlZiBpbml0aWFsaXplKHJlZ2lvbl9hYmJyZXZpYXRpb24pCiAgICBi\nYXNlX3VybCA9ICJodHRwOi8vY2hhcnRzLnNwb3RpZnkuY29tL2FwaS9jaGFy\ndHMiCiAgICBAc3RyZWFtZWQgPSBKU09OLmxvYWQob3BlbigiI3tiYXNlX3Vy\nbH0vbW9zdF9zdHJlYW1lZC8je3JlZ2lvbl9hYmJyZXZpYXRpb259L2xhdGVz\ndCIpKQogICAgQHNoYXJlZCA9IEpTT04ubG9hZChvcGVuKCIje2Jhc2VfdXJs\nfS9tb3N0X3NoYXJlZC8je3JlZ2lvbl9hYmJyZXZpYXRpb259L2xhdGVzdCIp\nKQogIGVuZAoKICBkZWYgbW9zdF9zdHJlYW1lZAogICAgYXJ0aXN0ID0gc3Ry\nZWFtZWRbInRyYWNrcyJdWzBdWyJhcnRpc3RfbmFtZSJdCiAgICB0cmFja190\naXRsZSA9IHN0cmVhbWVkWyJ0cmFja3MiXVswXVsidHJhY2tfbmFtZSJdIAog\nICAgYWxidW0gPSBzdHJlYW1lZFsidHJhY2tzIl1bMF1bImFsYnVtX25hbWUi\nXSAKICAgICInI3t0cmFja190aXRsZX0nIGJ5ICcje2FydGlzdH0nIGZyb20g\ndGhlIGFsYnVtICcje2FsYnVtfSciCiAgZW5kCgogIGRlZiBtb3N0X3NoYXJl\nZAogICAgYXJ0aXN0ID0gc2hhcmVkWyJ0cmFja3MiXVswXVsiYXJ0aXN0X25h\nbWUiXQogICAgdHJhY2tfdGl0bGUgPSBzaGFyZWRbInRyYWNrcyJdWzBdWyJ0\ncmFja19uYW1lIl0gCiAgICBhbGJ1bSA9IHNoYXJlZFsidHJhY2tzIl1bMF1b\nImFsYnVtX25hbWUiXSAKICAgICInI3t0cmFja190aXRsZX0nIGJ5ICcje2Fy\ndGlzdH0nIGZyb20gdGhlIGFsYnVtICcje2FsYnVtfSciCiAgZW5kCgplbmQ=\n"
-      decoded = Base64.decode64(encoded)
-      File.open('./spec/spec_spotify_chart.rb', 'w') do |file| 
-        file.write(decoded)
+    it "accepts one argument, the region" do
+      # v subbing out get_json method so that test can predict result v
+      class SpotifyChart
+        def get_json(arg)
+          JSON.parse( IO.read("spec/support/us_most_streamed.json"))
+        end
       end
-      require './spec/spec_spotify_chart.rb'
-    end
-
-    after(:all) do
-      File.open('./spec/spec_spotify_chart.rb', 'w') do |file| 
-        file.truncate(0)
-      end
+      # ^ subbing out get_json method so that test can predict result ^
+      expect { spotify_chart.most_streamed("us") }.to_not raise_error
     end
 
     it "returns America's most streamed track title, artist, and album" do
-      expect(american_chart.most_streamed).to eq(SpecSpotifyChart.new("us").most_streamed)
+      # v subbing out get_json method so that test can predict result v
+      class SpotifyChart
+        def get_json(arg)
+          JSON.parse( IO.read("spec/support/us_most_streamed.json"))
+        end
+      end
+      # ^ subbing out get_json method so that test can predict result ^
+      expect(SpotifyChart.new.most_streamed("us")).to eq("All About That Bass by Meghan Trainor from the album Title")
     end
-    it "returns America's most shared track title, artist, and album" do
-      expect(american_chart.most_shared).to eq(SpecSpotifyChart.new("us").most_shared)
-    end
+
     it "returns Great Britain's most streamed track title, artist, and album" do
-      expect(british_chart.most_streamed).to eq(SpecSpotifyChart.new("gb").most_streamed)
+      # v subbing out get_json method so that test can predict result v
+      class SpotifyChart
+        def get_json(arg)
+          JSON.parse( IO.read("spec/support/gb_most_streamed.json"))
+        end
+      end
+      # ^ subbing out get_json method so that test can predict result ^
+      expect(SpotifyChart.new.most_streamed("gb")).to eq("Prayer In C - Robin Schulz Radio Edit by Lilly Wood from the album Prayer In C")
     end
-    it "returns Great Britain's most shared track title, artist, and album" do
-      expect(british_chart.most_shared).to eq(SpecSpotifyChart.new("gb").most_shared)
-    end
-
-
   end
+
 end
