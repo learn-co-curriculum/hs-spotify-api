@@ -5,7 +5,7 @@ class SpotifyChart
 
   # replace the ? with the URL that is used to get Spotify's most streamed tracks
   # Hint: Look at the first URL under the help section of the README
-  BASE_URL = "http://charts.spotify.com/api/tracks/most_streamed"
+  BASE_URL = "?"
 
   def get_url(region)
     # return a string that is the BASE_URL/region/weekly/latest
