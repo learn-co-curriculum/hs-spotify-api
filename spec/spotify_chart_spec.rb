@@ -44,7 +44,7 @@ describe "SpotifyChart" do
   end
 
   describe "#get_json" do
-    let(:url) { "http://api.openweathermap.org/data/2.5/weather?q=NewYork" }
+    let(:url) { "http://charts.spotify.com/api/tracks/most_streamed/gb/weekly/latest" }
     
     it "accepts one argument, a JSON url" do
       expect { spotify_chart.get_json(url) }.to_not raise_error
