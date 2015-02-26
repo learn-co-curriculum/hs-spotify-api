@@ -13,7 +13,7 @@ This tutorial will walk you through how to use the [RSpotify gem](https://github
 
 ### Set Up
 
-Add `gem 'rspotify'` to your project's Gemfile and download it to your computer with `gem install rspotify`.
+Add `gem 'rspotify'` to your project's Gemfile and run `bundle install` to install the gem.
 
 ### Get Music
 
@@ -65,9 +65,8 @@ tracks = RSpotify::Track.search("track name")
 Check out the code in `spotify_test.rb` for an example of how you can use the gem. You can run `ruby spotify_test.rb` to see the results of the RSpotify queries. Or copy and paste the code into a route in your application controller and point it to a view with the HTML5 audio tags below. If you set up everything properly you should see the artist name, image and an audio player playing one of the artists songs.
 
 ```erb
-<h1><%= @track  %> by <%= @artist %></h1>
-
-<img src="<%= @artist_image %>" height="400" width="400" >
-
+<h1><%= @song %> by <%= @artist %></h1>
+<img src="<%= @artist_image_url %>" height="400" width="400" >
+<br>
 <audio controls src= <%= @song_preview %>></audio>
 ```
