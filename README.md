@@ -1,40 +1,73 @@
 ---
-tags: todo, api, json
-language: ruby
-resources: 3
+tags: kids, ruby, spotify, messaging, apis
+languages: ruby
+level: 1
+type: Intro, Documentation
 ---
 
-# Spotify's Chart API Todo
+## Spotify
 
-## Objective
+Spotify has a super cool [API](https://developer.spotify.com/) that can be used to access Spotify's music and info on artists.
 
-Get more familiar with using APIs and their JSON contents in Ruby.
+This tutorial will walk you through how to use the [RSpotify gem](https://github.com/guilhermesad/rspotify) to connect to the Spotify API and pull song, artist or album info and create a simple HTML5 audio player that plays a sample of a song.
 
-## Introduction
+### Set Up
 
-Scraping sites is one way to get data but many times, companies will expose more data through their application programming interfaces, or APIs. For this todo, we're going to focus on [Spotify's chart API](http://charts.spotify.com/docs).
+Add `gem 'rspotify'` to your project's Gemfile and download it to your computer with `gem install rspotify`.
 
-Before taking a look at an API, install a JSON Formatter extension into your browser. [JSONView Extension for Chrome](https://chrome.google.com/webstore/detail/jsonview/chklaanhfefbnpoihckbnefhakgolnmc?hl=en) is a popular one.
+### Get Music
 
-Now that a JSON browser formatter plugin is installed, make a guess about what the most streamed song on Spotify is. Keep that song in mind then click on the link below. This link should takes you to Spotify's open API for the most streamed tracks in the US over the past week.
+To get information related to an artist:
 
-  * [http://charts.spotify.com/api/tracks/most_streamed/us/weekly/latest](http://charts.spotify.com/api/tracks/most_streamed/us/weekly/latest). 
+```ruby
+artist = RSpotify::Artist.search("artist name")
 
-Did your guess match the first track listed? Were you right? Do you think the top streamed song in the US is the same as the top streamed song in Mexico? Take a look at [Mexico's top streamed tracks](http://charts.spotify.com/api/tracks/most_streamed/mx/weekly/latest). Is the most popular song the same?
+artist.name # => artists name
+artist.images # => an array of hashes with image url and info
+artist.albums # => albums array
+artist.top_tracks(country) # => array of top tracks by country
+artist.genres # => array of genres the artist is associated with.
+artist.popularity # => popularity of the artist between 0 and 100, with 100 being the most popular
+```
 
-## Instructions
+If you want to see search for artists that are similar to that artist you can also use this method:
 
-* Now that you've played around with an API a bit, it's time to write some code that will allow you to interact with these API sites in Ruby.
-* This is a test-driven lab so just get those specs to pass. Remember to start with the first specs then move to the later ones as they build on each other.
+```ruby
+artist.related_artists # => array of similar artists
+```
 
-## Help
+You can piggy back on the search above to pull information from an album like this:
 
-* If you get stuck, refer to the [docs](http://charts.spotify.com/docs), the resources below, and take a look at these urls and try to pattern match: 
-  * [http://charts.spotify.com/api/tracks/most_streamed/](http://charts.spotify.com/api/tracks/most_streamed/)
-  * [http://charts.spotify.com/api/tracks/most_streamed/us/](http://charts.spotify.com/api/tracks/most_streamed/us/)
-  * [http://charts.spotify.com/api/tracks/most_streamed/us/weekly/latest](http://charts.spotify.com/api/tracks/most_streamed/us/weekly/latest)
+```ruby
+album = artist.albums.first
 
-## Resources
-* [StackOverflow](http://stackoverflow.com/) - [JSON.load](http://stackoverflow.com/questions/18581792/ruby-on-rails-and-json-parser-from-url?answertab=votes#tab-top)
-* [RubyDocs](http://www.ruby-doc.org/) - [JSON Load Method](http://www.ruby-doc.org/stdlib-2.0.0/libdoc/json/rdoc/JSON.html#method-i-load)
-* [Spotify](https://developer.spotify.com/) - [Chart Documentation](http://charts.spotify.com/docs)
+album.name # => track name
+album.images # => images from the album
+album.popularity # => popularity of the album between 0 and 100, with 100 being the most popular
+```
+
+And you can piggy back on that search to pull track info like this:
+
+```ruby
+track = album.track.first
+
+track.popularity # => popularity of the track between 0 and 100, with 100 being the most popular
+track.preview_url # => a link to a 30 second preview (MP3 format) of the track
+```
+
+You can also specifically search for albums and tracks like this
+
+```ruby
+albums = RSpotify::Album.search("album name")
+tracks = RSpotify::Track.search("track name")
+```
+
+Check out the code in `spotify_test.rb` for an example of how you can use the gem. You can run `ruby spotify_test.rb` to see the results of the RSpotify queries. Or copy and paste the code into a route in your application controller and point it to a view with the HTML5 audio tags below. If you set up everything properly you should see the artist name, image and an audio player playing one of the artists songs.
+
+```erb
+<h1><%= @track  %> by <%= @artist %></h1>
+
+<img src="<%= @artist_image %>" height="400" width="400" >
+
+<audio controls src= <%= @song_preview %>></audio>
+```
