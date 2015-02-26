@@ -20,13 +20,13 @@ Add `gem 'rspotify'` to your project's Gemfile and run `bundle install` to insta
 To get information related to an artist:
 
 ```ruby
-artist = RSpotify::Artist.search("artist name")
+artist = RSpotify::Artist.search("artist name").first # => The search will return an array of possible matches. If the first one doesn't look right try [1], [2], etc.
 
-artist.name # => artists name
+artist.name # => the artist's name
 artist.images # => an array of hashes with image url and info
 artist.albums # => albums array
 artist.top_tracks(country) # => array of top tracks by country
-artist.genres # => array of genres the artist is associated with.
+artist.genres # => array of genres the artist is associated with
 artist.popularity # => popularity of the artist between 0 and 100, with 100 being the most popular
 ```
 
@@ -58,14 +58,16 @@ track.preview_url # => a link to a 30 second preview (MP3 format) of the track
 You can also specifically search for albums and tracks like this
 
 ```ruby
-albums = RSpotify::Album.search("album name")
-tracks = RSpotify::Track.search("track name")
+albums = RSpotify::Album.search("album name") # => returns an array of possible album matches
+tracks = RSpotify::Track.search("track name") # => returns an array of possible track matches
 ```
 
-Check out the code in `spotify_test.rb` for an example of how you can use the gem. You can run `ruby spotify_test.rb` to see the results of the RSpotify queries. Or copy and paste the code into a route in your application controller and point it to a view with the HTML5 audio tags below. If you set up everything properly you should see the artist name, image and an audio player playing one of the artists songs.
+Check out the code in `spotify_test.rb` for an example of how you can use the gem. You can run `ruby spotify_test.rb` to see the results of the RSpotify queries.
+
+Or copy and paste that code from `spotify_test.rb` into a route in your application controller and point it to a view with the HTML5 audio tag below. If you set up everything properly you should see the artist name, image and an audio player playing a clip from one of the artist's songs.
 
 ```erb
-<h1><%= @song %> by <%= @artist %></h1>
+<h1><%= @song_name %> by <%= @artist %></h1>
 <img src="<%= @artist_image_url %>" height="400" width="400" >
 <br>
 <audio controls src= <%= @song_preview %>></audio>
