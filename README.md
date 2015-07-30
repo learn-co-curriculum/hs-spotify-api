@@ -1,9 +1,4 @@
----
-tags: kids, ruby, spotify, messaging, apis
-languages: ruby
-level: 1
-type: Intro, Documentation
----
+
 
 ## Spotify
 
