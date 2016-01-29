@@ -68,4 +68,4 @@ Or copy and paste that code from `spotify_test.rb` into a route in your applicat
 <audio controls src= <%= @song_preview %>></audio>
 ```
 
-<a href='https://learn.co/lessons/hs-spotify-api' data-visibility='hidden'>View this lesson on Learn.co</a>
+<p data-visibility='hidden'>View <a href='https://learn.co/lessons/hs-spotify-api' title='Spotify'>Spotify</a> on Learn.co and start learning to code for free.</p>
